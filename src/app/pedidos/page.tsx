@@ -4,135 +4,90 @@ import { useState } from 'react';
 import Modal from '@/components/Modal';
 import { FaWhatsapp, FaPrint } from 'react-icons/fa';
 
+interface OrderItem {
+  name: string;
+  quantity: number;
+}
+
 interface Order {
   id: number;
   customerName: string;
-  items: string[];
+  items: OrderItem[];
   total: number;
   status: string;
   time: string;
   address: string;
   paymentMethod: string;
-  notes: string;
+  notes?: string;
 }
 
 const orders: Order[] = [
   {
     id: 1,
     customerName: 'João Silva',
-    items: ['X-Burger', 'Batata Frita', 'Coca-Cola'],
-    total: 49.70,
-    status: 'em preparo',
+    items: [
+      { name: 'X-Burger', quantity: 2 },
+      { name: 'Batata Frita', quantity: 1 },
+      { name: 'Coca-Cola', quantity: 2 }
+    ],
+    total: 89.90,
+    status: 'Pendente',
     time: '12:30',
-    address: 'Rua das Flores, 123 - Centro',
+    address: 'Rua das Flores, 123',
     paymentMethod: 'Cartão de Crédito',
-    notes: 'Sem cebola no hambúrguer'
+    notes: 'Sem cebola no X-Burger'
   },
   {
     id: 2,
     customerName: 'Maria Santos',
-    items: ['X-Salada', 'Milk Shake'],
-    total: 35.90,
-    status: 'em rota',
+    items: [
+      { name: 'X-Salada', quantity: 1 },
+      { name: 'Milk Shake', quantity: 1 }
+    ],
+    total: 45.90,
+    status: 'Em Preparo',
     time: '12:45',
-    address: 'Av. Principal, 456 - Jardim',
-    paymentMethod: 'Dinheiro',
-    notes: ''
+    address: 'Av. Principal, 456',
+    paymentMethod: 'Dinheiro'
   }
-];
-
-const statusOptions = [
-  { value: 'cancelado', label: 'Cancelado', color: 'bg-red-500' },
-  { value: 'em preparo', label: 'Em Preparo', color: 'bg-yellow-500' },
-  { value: 'em rota', label: 'Em Rota', color: 'bg-blue-500' },
-  { value: 'entregue', label: 'Entregue', color: 'bg-green-500' }
 ];
 
 export default function PedidosPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const handlePrint = () => {
-    if (!selectedOrder) return;
-    
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Pedido #${selectedOrder.id}</title>
-            <style>
-              body { font-family: Arial, sans-serif; padding: 20px; }
-              .header { text-align: center; margin-bottom: 20px; }
-              .section { margin-bottom: 20px; }
-              .section-title { font-weight: bold; margin-bottom: 10px; }
-              .item { display: flex; justify-content: space-between; margin-bottom: 5px; }
-              .total { font-weight: bold; margin-top: 10px; }
-              .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #666; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <h1>Pedido #${selectedOrder.id}</h1>
-              <p>Data: ${new Date().toLocaleDateString()}</p>
-            </div>
-            
-            <div class="section">
-              <div class="section-title">Cliente</div>
-              <p>${selectedOrder.customerName}</p>
-              <p>${selectedOrder.address}</p>
-            </div>
-
-            <div class="section">
-              <div class="section-title">Itens</div>
-              ${selectedOrder.items.map(item => `
-                <div class="item">
-                  <span>${item}</span>
-                </div>
-              `).join('')}
-              <div class="total">
-                Total: R$ ${selectedOrder.total.toFixed(2)}
-              </div>
-            </div>
-
-            <div class="section">
-              <div class="section-title">Informações Adicionais</div>
-              <p>Status: ${selectedOrder.status}</p>
-              <p>Forma de Pagamento: ${selectedOrder.paymentMethod}</p>
-              ${selectedOrder.notes ? `<p>Observações: ${selectedOrder.notes}</p>` : ''}
-            </div>
-
-            <div class="footer">
-              <p>Impresso em: ${new Date().toLocaleString()}</p>
-            </div>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-    }
+    window.print();
   };
 
   const handleWhatsApp = () => {
-    if (!selectedOrder) return;
+    if (selectedOrder) {
+      const message = `Olá! Aqui está o resumo do seu pedido #${selectedOrder.id}:\n\n` +
+        `Itens:\n${selectedOrder.items.map(item => `- ${item.name} (${item.quantity}x)`).join('\n')}\n\n` +
+        `Total: R$ ${selectedOrder.total.toFixed(2)}\n` +
+        `Status: ${selectedOrder.status}\n` +
+        `Endereço: ${selectedOrder.address}\n` +
+        `Forma de Pagamento: ${selectedOrder.paymentMethod}`;
 
-    const message = `
-*Pedido #${selectedOrder.id}*
-Data: ${new Date().toLocaleDateString()}
+      const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+      window.open(whatsappUrl, '_blank');
+    }
+  };
 
-*Cliente:* ${selectedOrder.customerName}
-*Endereço:* ${selectedOrder.address}
-
-*Itens:*
-${selectedOrder.items.map(item => `- ${item}`).join('\n')}
-
-*Total:* R$ ${selectedOrder.total.toFixed(2)}
-*Status:* ${selectedOrder.status}
-*Forma de Pagamento:* ${selectedOrder.paymentMethod}
-${selectedOrder.notes ? `\n*Observações:* ${selectedOrder.notes}` : ''}
-    `.trim();
-
-    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
-    window.open(whatsappUrl, '_blank');
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'Pendente':
+        return 'bg-yellow-100 text-yellow-800';
+      case 'Em Preparo':
+        return 'bg-blue-100 text-blue-800';
+      case 'Pronto':
+        return 'bg-green-100 text-green-800';
+      case 'Entregue':
+        return 'bg-gray-100 text-gray-800';
+      case 'Cancelado':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
   };
 
   return (
@@ -152,12 +107,7 @@ ${selectedOrder.notes ? `\n*Observações:* ${selectedOrder.notes}` : ''}
                 <p className="text-gray-600">{order.customerName}</p>
               </div>
               <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${
-                  order.status === 'cancelado' ? 'bg-red-500' :
-                  order.status === 'em preparo' ? 'bg-yellow-500' :
-                  order.status === 'em rota' ? 'bg-blue-500' :
-                  'bg-green-500'
-                }`}></div>
+                <div className={`w-3 h-3 rounded-full ${getStatusColor(order.status)}`}></div>
                 <span className="text-gray-900 capitalize">{order.status}</span>
               </div>
             </div>
@@ -192,7 +142,7 @@ ${selectedOrder.notes ? `\n*Observações:* ${selectedOrder.notes}` : ''}
                 <div className="space-y-2">
                   {selectedOrder.items.map((item, index) => (
                     <div key={index} className="flex justify-between items-center">
-                      <span className="text-gray-900">{item}</span>
+                      <span className="text-gray-900">{item.name}</span>
                     </div>
                   ))}
                 </div>
@@ -204,12 +154,7 @@ ${selectedOrder.notes ? `\n*Observações:* ${selectedOrder.notes}` : ''}
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Status</h3>
                   <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${
-                      selectedOrder.status === 'cancelado' ? 'bg-red-500' :
-                      selectedOrder.status === 'em preparo' ? 'bg-yellow-500' :
-                      selectedOrder.status === 'em rota' ? 'bg-blue-500' :
-                      'bg-green-500'
-                    }`}></div>
+                    <div className={`w-3 h-3 rounded-full ${getStatusColor(selectedOrder.status)}`}></div>
                     <span className="text-gray-900 capitalize">{selectedOrder.status}</span>
                   </div>
                 </div>
