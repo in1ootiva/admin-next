@@ -107,58 +107,52 @@ export default function PedidosPage() {
               </div>
             </div>
 
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Itens</h3>
-              <ul className="list-disc list-inside text-gray-600">
-                {selectedOrder.items.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
-            </div>
+            {/* Itens e Status */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Lista de Itens */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Itens do Pedido</h3>
+                <div className="space-y-2">
+                  {selectedOrder.items.map((item, index) => (
+                    <div key={index} className="flex justify-between items-center">
+                      <span className="text-gray-900">{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Total</h3>
-              <p className="text-gray-600">R$ {selectedOrder.total.toFixed(2)}</p>
-              <p className="text-gray-600">Forma de pagamento: {selectedOrder.paymentMethod}</p>
-            </div>
+              {/* Status e Informações */}
+              <div className="space-y-4">
+                {/* Status */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Status</h3>
+                  <div className="flex items-center gap-2">
+                    <div className={`w-3 h-3 rounded-full ${selectedOrder.status === 'cancelado' ? 'bg-red-500' : selectedOrder.status === 'em preparo' ? 'bg-yellow-500' : selectedOrder.status === 'em rota' ? 'bg-blue-500' : 'bg-green-500'}`}></div>
+                    <span className="text-gray-900 capitalize">{selectedOrder.status}</span>
+                  </div>
+                </div>
 
-            <div>
-              <h3 className="text-lg font-semibold mb-2">Status</h3>
-              <div className="relative" ref={statusMenuRef}>
-                <button
-                  type="button"
-                  onClick={() => setIsStatusMenuOpen(!isStatusMenuOpen)}
-                  className={`px-3 py-1 rounded-full text-sm ${
-                    statusOptions.find(s => s.value === selectedOrder.status)?.color
-                  }`}
-                >
-                  {statusOptions.find(s => s.value === selectedOrder.status)?.label}
-                </button>
-                {isStatusMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
-                    <div className="py-1">
-                      {statusOptions.map(option => (
-                        <button
-                          key={option.value}
-                          onClick={() => handleStatusChange(option.value)}
-                          className={`block w-full text-left px-4 py-2 text-sm ${
-                            option.value === selectedOrder.status
-                              ? 'bg-gray-100'
-                              : 'hover:bg-gray-50'
-                          }`}
-                        >
-                          {option.label}
-                        </button>
-                      ))}
+                {/* Total e Pagamento */}
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Pagamento</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Total</span>
+                      <span className="text-gray-900 font-medium">R$ {selectedOrder.total.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-600">Método</span>
+                      <span className="text-gray-900 capitalize">{selectedOrder.paymentMethod}</span>
                     </div>
                   </div>
-                )}
+                </div>
               </div>
             </div>
 
+            {/* Observações */}
             {selectedOrder.notes && (
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Observações</h3>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">Observações</h3>
                 <p className="text-gray-600">{selectedOrder.notes}</p>
               </div>
             )}
