@@ -200,7 +200,6 @@ export default function CardapioPage() {
                 value={newProduct.name}
                 onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                disabled={newProduct.id !== 0}
               />
             </div>
             <div>
@@ -212,7 +211,6 @@ export default function CardapioPage() {
                 value={newProduct.category}
                 onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                disabled={newProduct.id !== 0}
               >
                 <option value="">Selecione uma categoria</option>
                 <option value="Lanches">Lanches</option>
@@ -230,7 +228,6 @@ export default function CardapioPage() {
                 value={newProduct.price}
                 onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                disabled={newProduct.id !== 0}
               />
             </div>
             <div>
@@ -244,14 +241,12 @@ export default function CardapioPage() {
                   value={newProduct.imageUrl}
                   onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
                   className="block w-full rounded-l-md border-gray-300 focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-                  disabled={newProduct.id !== 0}
                 />
                 {newProduct.imageUrl && (
                   <button
                     type="button"
                     onClick={() => setNewProduct({ ...newProduct, imageUrl: '' })}
                     className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    disabled={newProduct.id !== 0}
                   >
                     <XMarkIcon className="h-5 w-5" />
                   </button>
@@ -269,40 +264,21 @@ export default function CardapioPage() {
               onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
               rows={3}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-              disabled={newProduct.id !== 0}
             />
           </div>
         </div>
         <div className="mt-6 flex justify-end gap-3">
           {newProduct.id !== 0 && (
-            <>
-              <button
-                type="button"
-                onClick={() => {
-                  handleDelete(newProduct.id);
-                  setIsModalOpen(false);
-                }}
-                className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
-              >
-                Excluir
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setNewProduct({
-                    id: 0,
-                    name: '',
-                    category: '',
-                    price: 0,
-                    description: '',
-                    imageUrl: ''
-                  });
-                }}
-                className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
-              >
-                Editar
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={() => {
+                handleDelete(newProduct.id);
+                setIsModalOpen(false);
+              }}
+              className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+            >
+              Excluir
+            </button>
           )}
           <button
             type="button"
