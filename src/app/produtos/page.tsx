@@ -1,9 +1,7 @@
 "use client";
 
-import { PlusIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 import Modal from '@/components/Modal';
-import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
 import Image from 'next/image';
 
 const products = [
