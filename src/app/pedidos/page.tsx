@@ -102,6 +102,7 @@ export default function PedidosPage() {
               <h3 className="text-lg font-semibold text-gray-900 mb-2">Informações do Cliente</h3>
               <div className="space-y-2">
                 <p className="text-gray-900 font-medium">{selectedOrder.customerName}</p>
+                <div className="h-px bg-gray-200 my-2"></div>
                 <p className="text-gray-600">{selectedOrder.address}</p>
               </div>
             </div>
