@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import Modal from '@/components/Modal';
 import { FaWhatsapp, FaPrint } from 'react-icons/fa';
 
@@ -24,41 +24,32 @@ const orders: Order[] = [
     total: 49.70,
     status: 'em preparo',
     time: '12:30',
-    address: 'Rua das Flores, 123',
+    address: 'Rua das Flores, 123 - Centro',
     paymentMethod: 'Cartão de Crédito',
     notes: 'Sem cebola no hambúrguer'
   },
   {
     id: 2,
     customerName: 'Maria Santos',
-    items: ['X-Salada', 'Refrigerante'],
+    items: ['X-Salada', 'Milk Shake'],
     total: 35.90,
-    status: 'entregue',
-    time: '12:15',
-    address: 'Av. Principal, 456',
+    status: 'em rota',
+    time: '12:45',
+    address: 'Av. Principal, 456 - Jardim',
     paymentMethod: 'Dinheiro',
     notes: ''
   }
 ];
 
 const statusOptions = [
-  { value: 'cancelado', label: 'Cancelado', color: 'bg-red-100 text-red-800' },
-  { value: 'em preparo', label: 'Em preparo', color: 'bg-yellow-100 text-yellow-800' },
-  { value: 'em rota', label: 'Em rota', color: 'bg-blue-100 text-blue-800' },
-  { value: 'entregue', label: 'Entregue', color: 'bg-green-100 text-green-800' }
+  { value: 'cancelado', label: 'Cancelado', color: 'bg-red-500' },
+  { value: 'em preparo', label: 'Em Preparo', color: 'bg-yellow-500' },
+  { value: 'em rota', label: 'Em Rota', color: 'bg-blue-500' },
+  { value: 'entregue', label: 'Entregue', color: 'bg-green-500' }
 ];
 
 export default function PedidosPage() {
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
-  const [isStatusMenuOpen, setIsStatusMenuOpen] = useState(false);
-  const statusMenuRef = useRef<HTMLDivElement>(null);
-
-  const handleStatusChange = (status: string) => {
-    if (selectedOrder) {
-      setSelectedOrder({ ...selectedOrder, status });
-      setIsStatusMenuOpen(false);
-    }
-  };
 
   const handlePrint = () => {
     if (!selectedOrder) return;
@@ -146,31 +137,32 @@ ${selectedOrder.notes ? `\n*Observações:* ${selectedOrder.notes}` : ''}
 
   return (
     <div className="p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Pedidos</h1>
-      </div>
+      <h1 className="text-2xl font-bold mb-6">Pedidos</h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="space-y-4">
         {orders.map(order => (
           <div
             key={order.id}
-            onClick={() => setSelectedOrder(order)}
             className="bg-white rounded-lg shadow-md p-4 cursor-pointer hover:shadow-lg transition-shadow"
+            onClick={() => setSelectedOrder(order)}
           >
-            <div className="flex justify-between items-start mb-2">
+            <div className="flex justify-between items-start">
               <div>
                 <h3 className="text-lg font-semibold">Pedido #{order.id}</h3>
                 <p className="text-gray-600">{order.customerName}</p>
               </div>
-              <span className={`px-2 py-1 rounded-full text-sm ${
-                statusOptions.find(s => s.value === order.status)?.color
-              }`}>
-                {statusOptions.find(s => s.value === order.status)?.label}
-              </span>
+              <div className="flex items-center gap-2">
+                <div className={`w-3 h-3 rounded-full ${
+                  order.status === 'cancelado' ? 'bg-red-500' :
+                  order.status === 'em preparo' ? 'bg-yellow-500' :
+                  order.status === 'em rota' ? 'bg-blue-500' :
+                  'bg-green-500'
+                }`}></div>
+                <span className="text-gray-900 capitalize">{order.status}</span>
+              </div>
             </div>
-            <div className="text-sm text-gray-500">
-              <p>Horário: {order.time}</p>
-              <p>Total: R$ {order.total.toFixed(2)}</p>
+            <div className="mt-2 text-sm text-gray-500">
+              {order.time} • {order.items.length} itens • R$ {order.total.toFixed(2)}
             </div>
           </div>
         ))}
@@ -212,7 +204,12 @@ ${selectedOrder.notes ? `\n*Observações:* ${selectedOrder.notes}` : ''}
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Status</h3>
                   <div className="flex items-center gap-2">
-                    <div className={`w-3 h-3 rounded-full ${selectedOrder.status === 'cancelado' ? 'bg-red-500' : selectedOrder.status === 'em preparo' ? 'bg-yellow-500' : selectedOrder.status === 'em rota' ? 'bg-blue-500' : 'bg-green-500'}`}></div>
+                    <div className={`w-3 h-3 rounded-full ${
+                      selectedOrder.status === 'cancelado' ? 'bg-red-500' :
+                      selectedOrder.status === 'em preparo' ? 'bg-yellow-500' :
+                      selectedOrder.status === 'em rota' ? 'bg-blue-500' :
+                      'bg-green-500'
+                    }`}></div>
                     <span className="text-gray-900 capitalize">{selectedOrder.status}</span>
                   </div>
                 </div>
