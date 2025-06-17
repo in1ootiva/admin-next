@@ -3,6 +3,17 @@
 import { useState } from 'react';
 import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline';
 import Modal from '@/components/Modal';
+import { FaEdit, FaTrash, FaPlus, FaImage } from 'react-icons/fa';
+
+interface Product {
+  id: number;
+  name: string;
+  category: string;
+  price: number;
+  status: string;
+  description: string;
+  image: string;
+}
 
 const categories = [
   { id: 1, name: 'Pizzas' },
@@ -11,7 +22,7 @@ const categories = [
   { id: 4, name: 'Promoções' },
 ];
 
-const products = [
+const initialProducts: Product[] = [
   {
     id: 1,
     name: 'Pizza Margherita',
@@ -51,24 +62,25 @@ const products = [
 ];
 
 export default function CardapioPage() {
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<typeof products[0] | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
+  const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({
     name: '',
     category: '',
-    price: '',
+    price: 0,
     description: '',
     image: '',
     status: 'ativo'
   });
 
-  const handleOpenModal = (product: typeof products[0]) => {
+  const handleOpenModal = (product: Product) => {
     setSelectedProduct(product);
-    setFormData({
+    setNewProduct({
       name: product.name,
       category: product.category,
-      price: product.price.toString(),
+      price: product.price,
       description: product.description,
       image: product.image,
       status: product.status
@@ -96,9 +108,32 @@ export default function CardapioPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Aqui você implementaria a lógica de salvamento
-    console.log('Salvar alterações:', formData);
+    console.log('Salvar alterações:', newProduct);
     setIsEditing(false);
     handleCloseModal();
+  };
+
+  const handleSave = () => {
+    if (isEditing && selectedProduct) {
+      setProducts(products.map(product => 
+        product.id === selectedProduct.id 
+          ? { ...product, ...newProduct }
+          : product
+      ));
+    } else {
+      setProducts([...products, { ...newProduct, id: products.length + 1 }]);
+    }
+    setIsModalOpen(false);
+    setIsEditing(false);
+    setSelectedProduct(null);
+    setNewProduct({
+      name: '',
+      category: '',
+      price: 0,
+      description: '',
+      image: '',
+      status: 'ativo'
+    });
   };
 
   return (
@@ -113,9 +148,22 @@ export default function CardapioPage() {
         <div className="mt-4 sm:mt-0">
           <button
             type="button"
+            onClick={() => {
+              setIsEditing(false);
+              setSelectedProduct(null);
+              setNewProduct({
+                name: '',
+                category: '',
+                price: 0,
+                description: '',
+                image: '',
+                status: 'ativo'
+              });
+              setIsModalOpen(true);
+            }}
             className="inline-flex items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
           >
-            <PlusIcon className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
+            <FaPlus className="-ml-0.5 mr-1.5 h-5 w-5" aria-hidden="true" />
             Novo Produto
           </button>
         </div>
@@ -190,12 +238,20 @@ export default function CardapioPage() {
                         </span>
                       </td>
                       <td className="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-0">
-                        <button
-                          onClick={() => handleOpenModal(product)}
-                          className="text-indigo-600 hover:text-indigo-900"
-                        >
-                          Editar
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleOpenModal(product)}
+                            className="text-blue-500 hover:text-blue-700"
+                          >
+                            <FaEdit />
+                          </button>
+                          <button
+                            onClick={() => handleDelete()}
+                            className="text-red-500 hover:text-red-700"
+                          >
+                            <FaTrash />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -224,8 +280,8 @@ export default function CardapioPage() {
                   <input
                     type="text"
                     id="name"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    value={newProduct.name}
+                    onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
                     disabled={!isEditing}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900 disabled:bg-gray-100 disabled:text-gray-900 disabled:opacity-60"
                   />
@@ -237,8 +293,8 @@ export default function CardapioPage() {
                   </label>
                   <select
                     id="category"
-                    value={formData.category}
-                    onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                    value={newProduct.category}
+                    onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
                     disabled={!isEditing}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900 disabled:bg-gray-100 disabled:text-gray-900 disabled:opacity-60"
                   >
@@ -262,8 +318,8 @@ export default function CardapioPage() {
                       type="number"
                       step="0.01"
                       id="price"
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                      value={newProduct.price}
+                      onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
                       disabled={!isEditing}
                       className="block w-full pl-7 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900 disabled:bg-gray-100 disabled:text-gray-900 disabled:opacity-60"
                     />
@@ -280,8 +336,8 @@ export default function CardapioPage() {
                   <textarea
                     id="description"
                     rows={4}
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    value={newProduct.description}
+                    onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
                     disabled={!isEditing}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900 disabled:bg-gray-100 disabled:text-gray-900 disabled:opacity-60"
                   />
@@ -291,21 +347,33 @@ export default function CardapioPage() {
                   <label htmlFor="image" className="block text-sm font-medium text-gray-700">
                     URL da Imagem
                   </label>
-                  <input
-                    type="text"
-                    id="image"
-                    value={formData.image}
-                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                    disabled={!isEditing}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900 disabled:bg-gray-100 disabled:text-gray-900 disabled:opacity-60"
-                  />
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      id="image"
+                      value={newProduct.image}
+                      onChange={(e) => setNewProduct({ ...newProduct, image: e.target.value })}
+                      disabled={!isEditing}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        // Aqui você pode implementar a lógica para selecionar uma imagem
+                        alert('Funcionalidade de upload de imagem será implementada em breve');
+                      }}
+                      className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                    >
+                      <FaImage />
+                    </button>
+                  </div>
                 </div>
 
-                {formData.image && (
+                {newProduct.image && (
                   <div className="mt-2">
                     <img
-                      src={formData.image}
-                      alt={formData.name}
+                      src={newProduct.image}
+                      alt={newProduct.name}
                       className="h-32 w-32 object-cover rounded-lg"
                     />
                   </div>
