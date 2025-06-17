@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import Modal from '@/components/Modal';
+import { FaWhatsapp, FaPrint } from 'react-icons/fa';
 
 interface Order {
   id: number;
@@ -57,6 +58,90 @@ export default function PedidosPage() {
       setSelectedOrder({ ...selectedOrder, status });
       setIsStatusMenuOpen(false);
     }
+  };
+
+  const handlePrint = () => {
+    if (!selectedOrder) return;
+    
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Pedido #${selectedOrder.id}</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 20px; }
+              .header { text-align: center; margin-bottom: 20px; }
+              .section { margin-bottom: 20px; }
+              .section-title { font-weight: bold; margin-bottom: 10px; }
+              .item { display: flex; justify-content: space-between; margin-bottom: 5px; }
+              .total { font-weight: bold; margin-top: 10px; }
+              .footer { margin-top: 30px; text-align: center; font-size: 12px; color: #666; }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <h1>Pedido #${selectedOrder.id}</h1>
+              <p>Data: ${new Date().toLocaleDateString()}</p>
+            </div>
+            
+            <div class="section">
+              <div class="section-title">Cliente</div>
+              <p>${selectedOrder.customerName}</p>
+              <p>${selectedOrder.address}</p>
+            </div>
+
+            <div class="section">
+              <div class="section-title">Itens</div>
+              ${selectedOrder.items.map(item => `
+                <div class="item">
+                  <span>${item}</span>
+                </div>
+              `).join('')}
+              <div class="total">
+                Total: R$ ${selectedOrder.total.toFixed(2)}
+              </div>
+            </div>
+
+            <div class="section">
+              <div class="section-title">Informações Adicionais</div>
+              <p>Status: ${selectedOrder.status}</p>
+              <p>Forma de Pagamento: ${selectedOrder.paymentMethod}</p>
+              ${selectedOrder.notes ? `<p>Observações: ${selectedOrder.notes}</p>` : ''}
+            </div>
+
+            <div class="footer">
+              <p>Impresso em: ${new Date().toLocaleString()}</p>
+            </div>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    }
+  };
+
+  const handleWhatsApp = () => {
+    if (!selectedOrder) return;
+
+    const message = `
+*Pedido #${selectedOrder.id}*
+Data: ${new Date().toLocaleDateString()}
+
+*Cliente:* ${selectedOrder.customerName}
+*Endereço:* ${selectedOrder.address}
+
+*Itens:*
+${selectedOrder.items.map(item => `- ${item}`).join('\n')}
+
+*Total:* R$ ${selectedOrder.total.toFixed(2)}
+*Status:* ${selectedOrder.status}
+*Forma de Pagamento:* ${selectedOrder.paymentMethod}
+${selectedOrder.notes ? `\n*Observações:* ${selectedOrder.notes}` : ''}
+    `.trim();
+
+    const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+    window.open(whatsappUrl, '_blank');
   };
 
   return (
@@ -156,6 +241,24 @@ export default function PedidosPage() {
                 <p className="text-gray-600">{selectedOrder.notes}</p>
               </div>
             )}
+
+            {/* Botões de Ação */}
+            <div className="flex items-center justify-end gap-4 mt-6">
+              <button
+                onClick={handlePrint}
+                className="flex items-center gap-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+              >
+                <FaPrint className="w-5 h-5" />
+                Imprimir
+              </button>
+              <button
+                onClick={handleWhatsApp}
+                className="bg-green-500 text-white p-3 rounded-full hover:bg-green-600 transition-colors"
+                title="Compartilhar no WhatsApp"
+              >
+                <FaWhatsapp className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         )}
       </Modal>
