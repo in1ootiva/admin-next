@@ -3,6 +3,8 @@
 import { PlusIcon, PencilIcon } from '@heroicons/react/24/outline';
 import { useState } from 'react';
 import Modal from '@/components/Modal';
+import { FaEdit, FaTrash, FaPlus } from 'react-icons/fa';
+import Image from 'next/image';
 
 const products = [
   {
@@ -127,7 +129,13 @@ export default function ProdutosPage() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       <div className="h-10 w-10 flex-shrink-0">
-                        <img className="h-10 w-10 rounded-full object-cover" src={product.image} alt="" />
+                        <Image
+                          src={product.image}
+                          alt={product.name}
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 rounded-full object-cover"
+                        />
                       </div>
                       <div className="ml-4">
                         <div className="text-sm font-medium text-gray-900">{product.name}</div>

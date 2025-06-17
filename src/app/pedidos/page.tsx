@@ -3,6 +3,9 @@
 import { FunnelIcon } from '@heroicons/react/24/outline';
 import { useState, useRef, useEffect } from 'react';
 import Modal from '@/components/Modal';
+import { Dialog, Transition } from '@headlessui/react';
+import { Fragment } from 'react';
+import { FaWhatsapp, FaPrint } from 'react-icons/fa';
 
 const orders = [
   {
@@ -41,29 +44,9 @@ const statusOptions = [
 
 export default function PedidosPage() {
   const [selectedOrder, setSelectedOrder] = useState<typeof orders[0] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isStatusMenuOpen, setIsStatusMenuOpen] = useState(false);
-  const [menuPosition, setMenuPosition] = useState<'top' | 'bottom'>('bottom');
-  const statusButtonRef = useRef<HTMLDivElement>(null);
-
-  // Função para verificar a posição do botão e ajustar o menu
-  const checkMenuPosition = () => {
-    if (statusButtonRef.current) {
-      const buttonRect = statusButtonRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
-      const spaceBelow = windowHeight - buttonRect.bottom;
-      const spaceAbove = buttonRect.top;
-      
-      // Se houver menos espaço abaixo do que acima, abre para cima
-      setMenuPosition(spaceBelow < 200 && spaceAbove > spaceBelow ? 'top' : 'bottom');
-    }
-  };
-
-  // Atualiza a posição do menu quando ele é aberto
-  useEffect(() => {
-    if (isStatusMenuOpen) {
-      checkMenuPosition();
-    }
-  }, [isStatusMenuOpen]);
+  const statusMenuRef = useRef<HTMLDivElement>(null);
 
   const handleShareWhatsApp = (order: typeof orders[0]) => {
     const message = `*Pedido #${order.id}*\n\n` +
@@ -408,7 +391,7 @@ export default function PedidosPage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                 </svg>
               </button>
-              <div className="relative" ref={statusButtonRef}>
+              <div className="relative" ref={statusMenuRef}>
                 <button
                   type="button"
                   onClick={() => setIsStatusMenuOpen(!isStatusMenuOpen)}
