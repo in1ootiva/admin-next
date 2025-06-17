@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Modal from '@/components/Modal';
 import Image from 'next/image';
+import { PlusIcon, PencilIcon } from '@heroicons/react/24/outline';
 
 const products = [
   {
@@ -90,11 +91,10 @@ export default function ProdutosPage() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-semibold text-gray-900">Produtos</h1>
         <button
-          type="button"
           onClick={() => handleOpenModal()}
-          className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
         >
-          <PlusIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+          <PlusIcon className="w-5 h-5" />
           Novo Produto
         </button>
       </div>
@@ -155,9 +155,9 @@ export default function ProdutosPage() {
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
                       onClick={() => handleOpenModal(product)}
-                      className="text-indigo-600 hover:text-indigo-900"
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                     >
-                      <PencilIcon className="h-5 w-5" />
+                      <PencilIcon className="w-5 h-5" />
                     </button>
                   </td>
                 </tr>

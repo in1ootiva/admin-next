@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Modal from '@/components/Modal';
 import { FaEdit, FaTrash, FaPlus, FaImage } from 'react-icons/fa';
+import Image from 'next/image';
 
 interface Product {
   id: number;
@@ -120,11 +121,12 @@ export default function CardapioPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {products.map(product => (
           <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="relative h-48">
-              <img
+            <div className="relative w-full h-48 mb-4">
+              <Image
                 src={product.imageUrl}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover rounded-lg"
               />
             </div>
             <div className="p-4">
