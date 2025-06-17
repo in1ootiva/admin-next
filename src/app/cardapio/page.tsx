@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { FaPlus } from 'react-icons/fa';
 import Modal from '@/components/Modal';
 import { XMarkIcon } from '@heroicons/react/24/outline';
+import Image from 'next/image';
 
 interface Product {
   id: number;
@@ -194,11 +195,13 @@ export default function CardapioPage() {
       >
         <div className="space-y-4">
           {newProduct.imageUrl && (
-            <div className="w-full max-w-[300px] mx-auto aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-              <img
+            <div className="w-full max-w-[300px] mx-auto aspect-square bg-gray-100 rounded-lg overflow-hidden border border-gray-200 relative">
+              <Image
                 src={newProduct.imageUrl}
                 alt={newProduct.name}
-                className="object-cover w-full h-full"
+                fill
+                className="object-cover"
+                sizes="(max-width: 300px) 100vw, 300px"
               />
             </div>
           )}
