@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Modal from '@/components/Modal';
 import { FaEdit, FaTrash, FaPlus, FaImage } from 'react-icons/fa';
 import Image from 'next/image';
+import { XMarkIcon } from '@heroicons/react/24/outline';
 
 interface Product {
   id: number;
@@ -48,7 +49,8 @@ export default function CardapioPage() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({
+  const [newProduct, setNewProduct] = useState<Product>({
+    id: 0,
     name: '',
     category: '',
     price: 0,
@@ -59,6 +61,7 @@ export default function CardapioPage() {
   const handleEdit = (product: Product) => {
     setSelectedProduct(product);
     setNewProduct({
+      id: product.id,
       name: product.name,
       category: product.category,
       price: product.price,
@@ -74,19 +77,24 @@ export default function CardapioPage() {
   };
 
   const handleSave = () => {
-    if (isEditing && selectedProduct) {
-      setProducts(products.map(product => 
-        product.id === selectedProduct.id 
-          ? { ...product, ...newProduct }
-          : product
-      ));
+    if (newProduct.id === 0) {
+      // Novo produto
+      const product: Product = {
+        id: products.length + 1,
+        name: newProduct.name,
+        category: newProduct.category,
+        price: newProduct.price,
+        description: newProduct.description,
+        imageUrl: newProduct.imageUrl
+      };
+      setProducts([...products, product]);
     } else {
-      setProducts([...products, { ...newProduct, id: products.length + 1 }]);
+      // Editar produto existente
+      setProducts(products.map(p => p.id === newProduct.id ? newProduct : p));
     }
     setIsModalOpen(false);
-    setIsEditing(false);
-    setSelectedProduct(null);
     setNewProduct({
+      id: 0,
       name: '',
       category: '',
       price: 0,
@@ -104,6 +112,7 @@ export default function CardapioPage() {
             setIsEditing(false);
             setSelectedProduct(null);
             setNewProduct({
+              id: 0,
               name: '',
               category: '',
               price: 0,
@@ -118,41 +127,37 @@ export default function CardapioPage() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {products.map(product => (
-          <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden">
-            <div className="relative w-full h-48 mb-4">
-              <Image
-                src={product.imageUrl}
-                alt={product.name}
-                fill
-                className="object-cover rounded-lg"
-              />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {products.map((product) => (
+          <div
+            key={product.id}
+            className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+            onClick={() => {
+              setNewProduct(product);
+              setIsModalOpen(true);
+            }}
+          >
+            <div className="aspect-w-16 aspect-h-9 bg-gray-100">
+              {product.imageUrl && (
+                <img
+                  src={product.imageUrl}
+                  alt={product.name}
+                  className="object-cover w-full h-full"
+                />
+              )}
             </div>
             <div className="p-4">
               <div className="flex justify-between items-start mb-2">
-                <h3 className="text-lg font-semibold">{product.name}</h3>
-                <span className="text-green-600 font-bold">
+                <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
+                <span className="text-lg font-bold text-primary-600">
                   R$ {product.price.toFixed(2)}
                 </span>
               </div>
               <p className="text-gray-600 text-sm mb-2">{product.description}</p>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-500">{product.category}</span>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => handleEdit(product)}
-                    className="text-blue-500 hover:text-blue-700"
-                  >
-                    <FaEdit />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(product.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <FaTrash />
-                  </button>
-                </div>
+              <div className="flex items-center justify-between">
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800">
+                  {product.category}
+                </span>
               </div>
             </div>
           </div>
@@ -163,122 +168,156 @@ export default function CardapioPage() {
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
-          setIsEditing(false);
-          setSelectedProduct(null);
+          setNewProduct({
+            id: 0,
+            name: '',
+            category: '',
+            price: 0,
+            description: '',
+            imageUrl: ''
+          });
         }}
-        title={isEditing ? 'Editar Item' : 'Novo Item'}
+        title={newProduct.id === 0 ? 'Novo Item' : 'Editar Item'}
       >
         <div className="space-y-4">
-          {/* Preview da Imagem */}
           {newProduct.imageUrl && (
-            <div className="relative w-full h-48 mb-4">
-              <Image
+            <div className="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg overflow-hidden">
+              <img
                 src={newProduct.imageUrl}
-                alt="Preview"
-                fill
-                className="object-cover rounded-lg"
+                alt={newProduct.name}
+                className="object-cover w-full h-full"
               />
             </div>
           )}
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
                 Nome
               </label>
               <input
                 type="text"
+                id="name"
                 value={newProduct.name}
                 onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                disabled={newProduct.id !== 0}
               />
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="category" className="block text-sm font-medium text-gray-700">
                 Categoria
               </label>
               <select
+                id="category"
                 value={newProduct.category}
                 onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                disabled={newProduct.id !== 0}
               >
                 <option value="">Selecione uma categoria</option>
-                {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
+                <option value="Lanches">Lanches</option>
+                <option value="Bebidas">Bebidas</option>
+                <option value="Sobremesas">Sobremesas</option>
               </select>
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="price" className="block text-sm font-medium text-gray-700">
                 Preço
               </label>
               <input
                 type="number"
-                step="0.01"
+                id="price"
                 value={newProduct.price}
                 onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                disabled={newProduct.id !== 0}
               />
             </div>
-
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">
                 URL da Imagem
               </label>
-              <div className="flex gap-2">
+              <div className="mt-1 flex rounded-md shadow-sm">
                 <input
                   type="text"
+                  id="imageUrl"
                   value={newProduct.imageUrl}
                   onChange={(e) => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="https://..."
+                  className="block w-full rounded-l-md border-gray-300 focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+                  disabled={newProduct.id !== 0}
                 />
-                <button
-                  type="button"
-                  className="p-2 text-gray-500 hover:text-gray-700"
-                  title="Limpar imagem"
-                  onClick={() => setNewProduct({ ...newProduct, imageUrl: '' })}
-                >
-                  <FaImage className="w-5 h-5" />
-                </button>
+                {newProduct.imageUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setNewProduct({ ...newProduct, imageUrl: '' })}
+                    className="inline-flex items-center px-3 rounded-r-md border border-l-0 border-gray-300 bg-gray-50 text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    disabled={newProduct.id !== 0}
+                  >
+                    <XMarkIcon className="h-5 w-5" />
+                  </button>
+                )}
               </div>
             </div>
           </div>
-
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700">
               Descrição
             </label>
             <textarea
+              id="description"
               value={newProduct.description}
               onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+              disabled={newProduct.id !== 0}
             />
           </div>
-
-          <div className="flex justify-end gap-2 mt-6">
-            <button
-              onClick={() => {
-                setIsModalOpen(false);
-                setIsEditing(false);
-                setSelectedProduct(null);
-              }}
-              className="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleSave}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-            >
-              Salvar
-            </button>
-          </div>
+        </div>
+        <div className="mt-6 flex justify-end gap-3">
+          {newProduct.id !== 0 && (
+            <>
+              <button
+                type="button"
+                onClick={() => {
+                  handleDelete(newProduct.id);
+                  setIsModalOpen(false);
+                }}
+                className="inline-flex justify-center rounded-md border border-transparent bg-red-100 px-4 py-2 text-sm font-medium text-red-900 hover:bg-red-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+              >
+                Excluir
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setNewProduct({
+                    id: 0,
+                    name: '',
+                    category: '',
+                    price: 0,
+                    description: '',
+                    imageUrl: ''
+                  });
+                }}
+                className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+              >
+                Editar
+              </button>
+            </>
+          )}
+          <button
+            type="button"
+            onClick={() => setIsModalOpen(false)}
+            className="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            className="inline-flex justify-center rounded-md border border-transparent bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary-500 focus-visible:ring-offset-2"
+          >
+            Salvar
+          </button>
         </div>
       </Modal>
     </div>

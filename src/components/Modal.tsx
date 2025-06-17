@@ -11,6 +11,16 @@ interface ModalProps {
   title?: string;
 }
 
+interface OrderItem {
+  name: string;
+  quantity: number;
+}
+
+interface Order {
+  items: OrderItem[];
+  notes?: string; // Tornando notes opcional
+}
+
 export default function Modal({ isOpen, onClose, children, title }: ModalProps) {
   return (
     <Transition.Root show={isOpen} as={Fragment}>
