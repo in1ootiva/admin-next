@@ -19,6 +19,7 @@ interface Order {
   address: string;
   paymentMethod: string;
   notes?: string;
+  table: number;
 }
 
 const orders: Order[] = [
@@ -35,7 +36,8 @@ const orders: Order[] = [
     time: '12:30',
     address: 'Rua das Flores, 123',
     paymentMethod: 'Cartão de Crédito',
-    notes: 'Sem cebola no X-Burger'
+    notes: 'Sem cebola no X-Burger',
+    table: 1
   },
   {
     id: 2,
@@ -48,7 +50,8 @@ const orders: Order[] = [
     status: 'Em Preparo',
     time: '12:45',
     address: 'Av. Principal, 456',
-    paymentMethod: 'Dinheiro'
+    paymentMethod: 'Dinheiro',
+    table: 2
   }
 ];
 
@@ -92,7 +95,7 @@ export default function PedidosPage() {
 
   return (
     <div className="p-4">
-      <h1 className="text-2xl font-bold mb-6">Pedidos</h1>
+      <h1 className="text-2xl font-bold mb-6 text-black">Pedidos</h1>
 
       <div className="space-y-4">
         {orders.map(order => (
@@ -103,7 +106,7 @@ export default function PedidosPage() {
           >
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="text-lg font-semibold">Pedido #{order.id}</h3>
+                <h3 className="text-lg font-semibold text-black">Pedido #{order.id}</h3>
                 <p className="text-gray-600">{order.customerName}</p>
               </div>
               <div className="flex items-center gap-2">
